@@ -498,20 +498,20 @@ const HomePage = () => {
           </div>
 
           <form onSubmit={handleSubmit}>
-            <input
-              ref={messageInputRef}
-              type="text"
-              aria-label={t('chat.send')}
-              placeholder={t('chat.messagePlaceholder')}
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              disabled={sending}
-              style={{ marginRight: '8px' }}
-            />
-            <button type="submit" disabled={sending}>
-              {t('chat.send')}
-            </button>
-          </form>
+  <input
+    ref={messageInputRef}
+    type="text"
+    aria-label={t('chat.newMessage')}
+    placeholder={t('chat.messagePlaceholder')}
+    value={body}
+    onChange={(e) => setBody(e.target.value)}
+    disabled={sending}
+    style={{ marginRight: '8px' }}
+  />
+  <button type="submit" disabled={sending}>
+    {t('chat.send')}
+  </button>
+</form>
         </div>
       </div>
 
