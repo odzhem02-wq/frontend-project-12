@@ -517,119 +517,92 @@ const HomePage = () => {
         </div>
       </div>
 
-      {channelToDelete && (
-        <div
-          style={modalOverlayStyle}
-          onClick={() => {
-            if (!deletingChannel) {
-              setChannelToDelete(null)
-            }
-          }}
-        >
-          <div style={modalContentStyle} onClick={(e) => e.stopPropagation()}>
-            <h3>{t('chat.deleteChannel')}</h3>
-            <p>{t('chat.areYouSure')}</p>
+{channelToRename && (
+  <div
+    style={modalOverlayStyle}
+    onClick={() => setChannelToRename(null)}
+  >
+    <div
+      style={modalContentStyle}
+      onClick={(e) => e.stopPropagation()}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="rename-channel-title"
+    >
+      <h3 id="rename-channel-title">{t('chat.rename')}</h3>
+
+      <Formik
+        initialValues={{ name: channelToRename.name }}
+        validationSchema={renameChannelSchema}
+        enableReinitialize
+        onSubmit={async (values, { setSubmitting }) => {
+          try {
+            const trimmedName = values.name.trim()
+            const cleanedName = sanitizeText(trimmedName)
+
+            await axios.patch(
+              `/api/v1/channels/${channelToRename.id}`,
+              { name: cleanedName },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              },
+            )
+
+            toast.success(t('toasts.channelRenamed'))
+            setChannelToRename(null)
+          } catch (error) {
+            console.error(error)
+            toast.error(t('toasts.networkError'))
+          } finally {
+            setSubmitting(false)
+          }
+        }}
+      >
+        {({ isSubmitting }) => (
+          <Form>
+            <label htmlFor="rename-channel-name">{t('chat.addChannelPlaceholder')}</label>
+
+            <div style={{ marginBottom: '10px' }}>
+              <Field name="name">
+                {({ field }) => (
+                  <input
+                    {...field}
+                    id="rename-channel-name"
+                    ref={renameChannelInputRef}
+                    placeholder={t('chat.addChannelPlaceholder')}
+                    disabled={isSubmitting}
+                    style={{ width: '100%' }}
+                  />
+                )}
+              </Field>
+            </div>
+
+            <ErrorMessage
+              name="name"
+              component="div"
+              style={{ color: 'red', fontSize: '14px', marginBottom: '10px' }}
+            />
 
             <div style={{ display: 'flex', gap: '10px' }}>
               <button
                 type="button"
-                onClick={() => setChannelToDelete(null)}
-                disabled={deletingChannel}
+                onClick={() => setChannelToRename(null)}
+                disabled={isSubmitting}
               >
                 {t('chat.cancel')}
               </button>
-              <button
-                type="button"
-                onClick={handleDeleteChannel}
-                disabled={deletingChannel}
-              >
-                {t('chat.remove')}
+              <button type="submit" disabled={isSubmitting}>
+                {t('chat.save')}
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {channelToRename && (
-        <div
-          style={modalOverlayStyle}
-          onClick={() => setChannelToRename(null)}
-        >
-          <div style={modalContentStyle} onClick={(e) => e.stopPropagation()}>
-            <h3>{t('chat.rename')}</h3>
-
-            <Formik
-              initialValues={{ name: channelToRename.name }}
-              validationSchema={renameChannelSchema}
-              enableReinitialize
-              onSubmit={async (values, { setSubmitting }) => {
-                try {
-                  const trimmedName = values.name.trim()
-                  const cleanedName = sanitizeText(trimmedName)
-
-                  await axios.patch(
-                    `/api/v1/channels/${channelToRename.id}`,
-                    { name: cleanedName },
-                    {
-                      headers: {
-                        Authorization: `Bearer ${token}`,
-                      },
-                    },
-                  )
-
-                  toast.success(t('toasts.channelRenamed'))
-                  setChannelToRename(null)
-                } catch (error) {
-                  console.error(error)
-                  toast.error(t('toasts.networkError'))
-                } finally {
-                  setSubmitting(false)
-                }
-              }}
-            >
-              {({ isSubmitting }) => (
-                <Form>
-                  <label htmlFor="rename-channel-name">{t('chat.addChannelPlaceholder')}</label>
-
-                  <div style={{ marginBottom: '10px' }}>
-                    <Field name="name">
-                      {({ field }) => (
-                        <input
-                          {...field}
-                          id="rename-channel-name"
-                          ref={renameChannelInputRef}
-                          placeholder={t('chat.addChannelPlaceholder')}
-                          disabled={isSubmitting}
-                          style={{ width: '100%' }}
-                        />
-                      )}
-                    </Field>
-                  </div>
-
-                  <ErrorMessage
-                    name="name"
-                    component="div"
-                    style={{ color: 'red', fontSize: '14px', marginBottom: '10px' }}
-                  />
-
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button
-                      type="button"
-                      onClick={() => setChannelToRename(null)}
-                      disabled={isSubmitting}
-                    >
-                      {t('chat.cancel')}
-                    </button>
-                    <button type="submit" disabled={isSubmitting}>
-                      OK
-                    </button>
-                  </div>
-                </Form>
-              )}
-            </Formik>
-          </div>
-        </div>
-      )}
+          </Form>
+        )}
+      </Formik>
+    </div>
+  </div>
+)}
     </>
   )
 }
