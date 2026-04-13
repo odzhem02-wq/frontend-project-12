@@ -42,7 +42,7 @@ const resources = {
 
 chat: {
   channels: 'Каналы',
-  addChannel: 'Добавить канал',
+  addChannel: '+',
   addChannelPlaceholder: 'Имя канала',
   newChannel: 'Новый канал',
   renameChannel: 'Переименовать канал',
