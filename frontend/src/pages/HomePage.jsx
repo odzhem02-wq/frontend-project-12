@@ -525,6 +525,7 @@ const HomePage = () => {
                 },
               },
             )
+dispatch(renameChannel({ id: channelToRename.id, name }))
 
             toast.success(t('toasts.channelRenamed'))
             setChannelToRename(null)
