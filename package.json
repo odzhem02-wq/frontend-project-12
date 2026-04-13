@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/odzhem02-wq/frontend-project-12#readme",
   "dependencies": {
-    "@hexlet/chat-server": "^2.0.4"
+    "@hexlet/chat-server": "^2.0.4",
+    "yup": "^1.7.1"
   }
 }
