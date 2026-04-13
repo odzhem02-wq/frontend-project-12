@@ -349,9 +349,9 @@ const HomePage = () => {
                       )}
                     </Field>
 
-                    <button type="submit" disabled={isSubmitting}>
-                      {t('chat.addChannel')}
-                    </button>
+<button type="submit" disabled={isSubmitting}>
+  {t('chat.save')}
+</button>
                   </div>
 
                   <ErrorMessage
