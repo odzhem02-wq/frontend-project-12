@@ -8,6 +8,7 @@ const resources = {
         brand: 'Hexlet Chat',
         logout: 'Выйти',
       },
+
       login: {
         title: 'Войти',
         username: 'Ваш ник',
@@ -17,6 +18,7 @@ const resources = {
         noAccount: 'Нет аккаунта?',
         signup: 'Регистрация',
       },
+
       signup: {
         title: 'Регистрация',
         username: 'Имя пользователя',
@@ -31,30 +33,42 @@ const resources = {
         passwordLength: 'Не менее 6 символов',
         passwordsMustMatch: 'Пароли должны совпадать',
       },
+
       notFound: {
         title: '404',
         text: 'Страница не найдена',
         link: 'На главную',
       },
+
       chat: {
         channels: 'Каналы',
-        addChannel: '+ Добавить канал',
+        addChannel: '+',
         addChannelPlaceholder: 'Имя канала',
         renameChannel: 'Переименовать канал',
         deleteChannel: 'Удалить канал',
-        areYouSure: 'Уверена?',
+        areYouSure: 'Уверены?',
         cancel: 'Отмена',
         remove: 'Удалить',
-        save: 'Сохранить',
-        rename: '✏️ Переименовать',
-        delete: '❌ Удалить',
+        save: 'Отправить',
+        rename: 'Переименовать',
+        delete: 'Удалить',
         send: 'Отправить',
         messagePlaceholder: 'Введите сообщение...',
-        sendError: 'Ошибка при отправке сообщения',
+        sendError: 'Ошибка соединения',
         channelExists: 'Канал уже существует',
         channelNameLength: 'От 3 до 20 символов',
         required: 'Обязательное поле',
         chatFallback: 'Чат',
+        channelManagement: 'Управление каналом',
+        loading: 'Загрузка...',
+      },
+
+      toasts: {
+        channelCreated: 'Канал создан',
+        channelRenamed: 'Канал переименован',
+        channelRemoved: 'Канал удалён',
+        networkError: 'Ошибка соединения',
+        loadError: 'Не удалось загрузить данные',
       },
     },
   },

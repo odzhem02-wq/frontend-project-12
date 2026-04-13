@@ -168,9 +168,6 @@ const HomePage = () => {
   }, [loading, currentChannelId])
 
   useEffect(() => {
-}, [])
-
-  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [currentMessagesLength, currentChannelId])
 
@@ -251,7 +248,7 @@ const HomePage = () => {
       messageInputRef.current?.focus()
     } catch (error) {
       console.error(error)
-      toast.error(t('toasts.networkError'))
+      toast.error(t('chat.sendError'))
     } finally {
       setSending(false)
     }
@@ -344,6 +341,7 @@ const HomePage = () => {
                         <input
                           {...field}
                           ref={addChannelInputRef}
+                          aria-label={t('chat.addChannelPlaceholder')}
                           placeholder={t('chat.addChannelPlaceholder')}
                           disabled={isSubmitting}
                           style={{ flexGrow: 1, minWidth: 0 }}
@@ -352,7 +350,7 @@ const HomePage = () => {
                     </Field>
 
                     <button type="submit" disabled={isSubmitting}>
-                      OK
+                      {t('chat.addChannel')}
                     </button>
                   </div>
 
@@ -398,6 +396,7 @@ const HomePage = () => {
                       >
                         <button
                           type="button"
+                          aria-label={t('chat.channelManagement')}
                           onClick={() =>
                             setOpenMenuId(openMenuId === channel.id ? null : channel.id)
                           }
@@ -502,6 +501,7 @@ const HomePage = () => {
             <input
               ref={messageInputRef}
               type="text"
+              aria-label={t('chat.send')}
               placeholder={t('chat.messagePlaceholder')}
               value={body}
               onChange={(e) => setBody(e.target.value)}
@@ -593,6 +593,7 @@ const HomePage = () => {
                         <input
                           {...field}
                           ref={renameChannelInputRef}
+                          aria-label={t('chat.addChannelPlaceholder')}
                           disabled={isSubmitting}
                           style={{ width: '100%' }}
                         />
