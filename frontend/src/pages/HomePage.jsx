@@ -503,61 +503,23 @@ const HomePage = () => {
         </div>
       </div>
 
-      {channelToDelete && (
-        <div
-          style={modalOverlayStyle}
-          onClick={() => {
-            if (!deletingChannel) {
-              setChannelToDelete(null)
-            }
-          }}
-        >
-          <div style={modalContentStyle} onClick={(e) => e.stopPropagation()}>
-            <h3>{t('chat.deleteChannel')}</h3>
-            <p>{t('chat.areYouSure')}</p>
-
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button
-                type="button"
-                onClick={() => setChannelToDelete(null)}
-                disabled={deletingChannel}
-              >
-                {t('chat.cancel')}
-              </button>
-              <button
-                type="button"
-                onClick={handleDeleteChannel}
-                disabled={deletingChannel}
-              >
-                {t('chat.remove')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {channelToRename && (
+ {channelToRename && (
   <div style={modalOverlayStyle}>
-    <div
-      style={modalContentStyle}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="rename-channel-title"
-    >
-      <h3 id="rename-channel-title">{t('chat.rename')}</h3>
+    <div style={modalContentStyle}>
+      <h3>{t('chat.renameChannel')}</h3>
 
-      <Formik
-        key={channelToRename.id}
-        initialValues={{ name: channelToRename.name }}
-        validationSchema={renameChannelSchema}
-        enableReinitialize
-        onSubmit={async (values, { setSubmitting }) => {
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault()
+          const formData = new FormData(e.target)
+          const name = formData.get('name').trim()
+
+          if (!name) return
+
           try {
-            const trimmedName = values.name.trim()
-
             await axios.patch(
               `/api/v1/channels/${channelToRename.id}`,
-              { name: sanitizeText(trimmedName) },
+              { name },
               {
                 headers: {
                   Authorization: `Bearer ${token}`,
@@ -568,55 +530,27 @@ const HomePage = () => {
             toast.success(t('toasts.channelRenamed'))
             setChannelToRename(null)
           } catch (error) {
-            console.error(error)
             toast.error(t('toasts.networkError'))
-          } finally {
-            setSubmitting(false)
           }
         }}
       >
-        {({ isSubmitting }) => (
-          <Form>
-            <label htmlFor="rename-channel-name">
-              {t('chat.addChannelPlaceholder')}
-            </label>
+        <input
+          name="name"
+          defaultValue={channelToRename.name}
+          autoFocus
+        />
 
-            <div style={{ marginBottom: '10px' }}>
-          <input
-  name="name"
-  id="rename-channel-name"
-  type="text"
-  defaultValue={channelToRename.name}
-  autoFocus
-  disabled={isSubmitting}
-  onChange={(e) => {
-    values.name = e.target.value
-  }}
-  style={{ width: '100%' }}
-/>
-            </div>
+        <button type="submit">
+          {t('chat.save')}
+        </button>
 
-            <ErrorMessage
-              name="name"
-              component="div"
-              style={{ color: 'red', fontSize: '14px', marginBottom: '10px' }}
-            />
-
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button
-                type="button"
-                onClick={() => setChannelToRename(null)}
-                disabled={isSubmitting}
-              >
-                {t('chat.cancel')}
-              </button>
-              <button type="submit" disabled={isSubmitting}>
-                {t('chat.save')}
-              </button>
-            </div>
-          </Form>
-        )}
-      </Formik>
+        <button
+          type="button"
+          onClick={() => setChannelToRename(null)}
+        >
+          {t('chat.cancel')}
+        </button>
+      </form>
     </div>
   </div>
 )}
