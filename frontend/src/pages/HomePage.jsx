@@ -582,18 +582,18 @@ const HomePage = () => {
             </label>
 
             <div style={{ marginBottom: '10px' }}>
-              <Field name="name">
-                {({ field }) => (
-                  <input
-                    {...field}
-                    id="rename-channel-name"
-                    type="text"
-                    autoFocus
-                    disabled={isSubmitting}
-                    style={{ width: '100%' }}
-                  />
-                )}
-              </Field>
+          <input
+  name="name"
+  id="rename-channel-name"
+  type="text"
+  defaultValue={channelToRename.name}
+  autoFocus
+  disabled={isSubmitting}
+  onChange={(e) => {
+    values.name = e.target.value
+  }}
+  style={{ width: '100%' }}
+/>
             </div>
 
             <ErrorMessage
