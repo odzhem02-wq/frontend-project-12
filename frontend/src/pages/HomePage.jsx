@@ -585,18 +585,18 @@ const HomePage = () => {
               style={{ color: 'red', fontSize: '14px', marginBottom: '10px' }}
             />
 
-          <div style={{ display: 'flex', gap: '10px' }}>
-  <button
-    type="button"
-    onClick={() => setChannelToRename(null)}
-    disabled={isSubmitting}
-  >
-    {t('chat.cancel')}
-  </button>
-  <button type="submit" disabled={isSubmitting}>
-    {t('chat.rename')}
-  </button>
-</div>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                type="button"
+                onClick={() => setChannelToRename(null)}
+                disabled={isSubmitting}
+              >
+                {t('chat.cancel')}
+              </button>
+              <button type="submit" disabled={isSubmitting}>
+                {t('chat.save')}
+              </button>
+            </div>
           </Form>
         )}
       </Formik>
