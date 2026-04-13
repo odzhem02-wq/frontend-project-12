@@ -537,90 +537,89 @@ const HomePage = () => {
       )}
 
       {channelToRename && (
-        <div
-          style={modalOverlayStyle}
-          onClick={() => setChannelToRename(null)}
-        >
-          <div
-            style={modalContentStyle}
-            onClick={(e) => e.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="rename-channel-title"
-          >
-            <h3 id="rename-channel-title">{t('chat.rename')}</h3>
+  <div style={modalOverlayStyle}>
+    <div
+      style={modalContentStyle}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="rename-channel-title"
+    >
+      <h3 id="rename-channel-title">{t('chat.rename')}</h3>
 
-            <Formik
-              initialValues={{ name: channelToRename.name }}
-              validationSchema={renameChannelSchema}
-              enableReinitialize
-              onSubmit={async (values, { setSubmitting }) => {
-                try {
-                  const trimmedName = values.name.trim()
+      <Formik
+        key={channelToRename.id}
+        initialValues={{ name: channelToRename.name }}
+        validationSchema={renameChannelSchema}
+        enableReinitialize
+        onSubmit={async (values, { setSubmitting }) => {
+          try {
+            const trimmedName = values.name.trim()
 
-                  await axios.patch(
-                    `/api/v1/channels/${channelToRename.id}`,
-                    { name: sanitizeText(trimmedName) },
-                    {
-                      headers: {
-                        Authorization: `Bearer ${token}`,
-                      },
-                    },
-                  )
+            await axios.patch(
+              `/api/v1/channels/${channelToRename.id}`,
+              { name: sanitizeText(trimmedName) },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              },
+            )
 
-                  toast.success(t('toasts.channelRenamed'))
-                  setChannelToRename(null)
-                } catch (error) {
-                  console.error(error)
-                  toast.error(t('toasts.networkError'))
-                } finally {
-                  setSubmitting(false)
-                }
-              }}
-            >
-              {({ isSubmitting }) => (
-                <Form>
-                  <label htmlFor="rename-channel-name">{t('chat.addChannelPlaceholder')}</label>
+            toast.success(t('toasts.channelRenamed'))
+            setChannelToRename(null)
+          } catch (error) {
+            console.error(error)
+            toast.error(t('toasts.networkError'))
+          } finally {
+            setSubmitting(false)
+          }
+        }}
+      >
+        {({ isSubmitting }) => (
+          <Form>
+            <label htmlFor="rename-channel-name">
+              {t('chat.addChannelPlaceholder')}
+            </label>
 
-                  <div style={{ marginBottom: '10px' }}>
-                    <Field name="name">
-                      {({ field }) => (
-                        <input
-                          {...field}
-                          id="rename-channel-name"
-                          ref={renameChannelInputRef}
-                          placeholder={t('chat.addChannelPlaceholder')}
-                          disabled={isSubmitting}
-                          style={{ width: '100%' }}
-                        />
-                      )}
-                    </Field>
-                  </div>
-
-                  <ErrorMessage
-                    name="name"
-                    component="div"
-                    style={{ color: 'red', fontSize: '14px', marginBottom: '10px' }}
+            <div style={{ marginBottom: '10px' }}>
+              <Field name="name">
+                {({ field }) => (
+                  <input
+                    {...field}
+                    id="rename-channel-name"
+                    type="text"
+                    autoFocus
+                    disabled={isSubmitting}
+                    style={{ width: '100%' }}
                   />
+                )}
+              </Field>
+            </div>
 
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button
-                      type="button"
-                      onClick={() => setChannelToRename(null)}
-                      disabled={isSubmitting}
-                    >
-                      {t('chat.cancel')}
-                    </button>
-                    <button type="submit" disabled={isSubmitting}>
-                      {t('chat.save')}
-                    </button>
-                  </div>
-                </Form>
-              )}
-            </Formik>
-          </div>
-        </div>
-      )}
+            <ErrorMessage
+              name="name"
+              component="div"
+              style={{ color: 'red', fontSize: '14px', marginBottom: '10px' }}
+            />
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                type="button"
+                onClick={() => setChannelToRename(null)}
+                disabled={isSubmitting}
+              >
+                {t('chat.cancel')}
+              </button>
+              <button type="submit" disabled={isSubmitting}>
+                {t('chat.save')}
+              </button>
+            </div>
+          </Form>
+        )}
+      </Formik>
+    </div>
+  </div>
+)}
     </>
   )
 }
