@@ -593,9 +593,9 @@ const HomePage = () => {
               >
                 {t('chat.cancel')}
               </button>
-              <button type="submit" disabled={isSubmitting}>
-                {t('chat.save')}
-              </button>
+             <button type="submit" disabled={isSubmitting}>
+  {t('chat.send')}
+</button>
             </div>
           </Form>
         )}
