@@ -9,8 +9,8 @@ const resources = {
         logout: 'Выйти',
       },
       login: {
-        title: 'Вход',
-        username: 'Имя пользователя',
+        title: 'Войти',
+        username: 'Ваш ник',
         password: 'Пароль',
         submit: 'Войти',
         errorAuth: 'Неверные имя пользователя или пароль',

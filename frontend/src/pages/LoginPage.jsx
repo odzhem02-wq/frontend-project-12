@@ -29,7 +29,7 @@ const LoginPage = () => {
 
   return (
     <div>
-      <h1>{t('login.title')}</h1>
+      <h1>{t('login.submit')}</h1>
 
       <Formik
         initialValues={{ username: '', password: '' }}
@@ -40,14 +40,24 @@ const LoginPage = () => {
             <div style={{ marginBottom: '10px' }}>
               <label htmlFor="username">{t('login.username')}</label>
               <div>
-                <Field id="username" name="username" type="text" />
+                <Field
+                  id="username"
+                  name="username"
+                  type="text"
+                  autoComplete="username"
+                />
               </div>
             </div>
 
             <div style={{ marginBottom: '10px' }}>
               <label htmlFor="password">{t('login.password')}</label>
               <div>
-                <Field id="password" name="password" type="password" />
+                <Field
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                />
               </div>
             </div>
 
