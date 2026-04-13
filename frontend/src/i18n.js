@@ -53,6 +53,7 @@ const resources = {
         rename: 'Переименовать',
         delete: 'Удалить',
         send: 'Отправить',
+        newMessage: 'Новое сообщение',
         messagePlaceholder: 'Введите сообщение...',
         sendError: 'Ошибка соединения',
         channelExists: 'Канал уже существует',
