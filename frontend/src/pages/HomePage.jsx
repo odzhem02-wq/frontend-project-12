@@ -503,7 +503,7 @@ const HomePage = () => {
         </div>
       </div>
 
- {channelToRename && (
+{channelToRename && (
   <div style={modalOverlayStyle}>
     <div style={modalContentStyle}>
       <h3>{t('chat.renameChannel')}</h3>
@@ -511,10 +511,9 @@ const HomePage = () => {
       <form
         onSubmit={async (e) => {
           e.preventDefault()
-          const formData = new FormData(e.target)
-          const name = formData.get('name').trim()
 
-          if (!name) return
+          const formData = new FormData(e.target)
+          const name = sanitizeText(formData.get('name').trim())
 
           try {
             await axios.patch(
@@ -537,19 +536,22 @@ const HomePage = () => {
         <input
           name="name"
           defaultValue={channelToRename.name}
+          aria-label={t('chat.renameChannel')}
           autoFocus
         />
 
-        <button type="submit">
-          {t('chat.save')}
-        </button>
+        <div style={{ marginTop: '10px' }}>
+          <button type="submit">
+            {t('chat.save')}
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setChannelToRename(null)}
-        >
-          {t('chat.cancel')}
-        </button>
+          <button
+            type="button"
+            onClick={() => setChannelToRename(null)}
+          >
+            {t('chat.cancel')}
+          </button>
+        </div>
       </form>
     </div>
   </div>
