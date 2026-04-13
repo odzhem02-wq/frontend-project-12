@@ -335,13 +335,15 @@ const HomePage = () => {
             >
               {({ isSubmitting }) => (
                 <Form style={{ marginBottom: '15px' }}>
+                  <label htmlFor="new-channel-name">{t('chat.addChannelPlaceholder')}</label>
+
                   <div style={{ marginBottom: '6px', display: 'flex', gap: '6px' }}>
                     <Field name="name">
                       {({ field }) => (
                         <input
                           {...field}
+                          id="new-channel-name"
                           ref={addChannelInputRef}
-                          aria-label={t('chat.addChannelPlaceholder')}
                           placeholder={t('chat.addChannelPlaceholder')}
                           disabled={isSubmitting}
                           style={{ flexGrow: 1, minWidth: 0 }}
@@ -349,9 +351,9 @@ const HomePage = () => {
                       )}
                     </Field>
 
-<button type="submit" disabled={isSubmitting}>
-  {t('chat.save')}
-</button>
+                    <button type="submit" disabled={isSubmitting}>
+                      OK
+                    </button>
                   </div>
 
                   <ErrorMessage
@@ -498,20 +500,20 @@ const HomePage = () => {
           </div>
 
           <form onSubmit={handleSubmit}>
-  <input
-    ref={messageInputRef}
-    type="text"
-    aria-label={t('chat.newMessage')}
-    placeholder={t('chat.messagePlaceholder')}
-    value={body}
-    onChange={(e) => setBody(e.target.value)}
-    disabled={sending}
-    style={{ marginRight: '8px' }}
-  />
-  <button type="submit" disabled={sending}>
-    {t('chat.send')}
-  </button>
-</form>
+            <input
+              ref={messageInputRef}
+              type="text"
+              aria-label={t('chat.newMessage')}
+              placeholder={t('chat.messagePlaceholder')}
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              disabled={sending}
+              style={{ marginRight: '8px' }}
+            />
+            <button type="submit" disabled={sending}>
+              {t('chat.send')}
+            </button>
+          </form>
         </div>
       </div>
 
