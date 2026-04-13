@@ -556,7 +556,7 @@ const HomePage = () => {
           onClick={() => setChannelToRename(null)}
         >
           <div style={modalContentStyle} onClick={(e) => e.stopPropagation()}>
-            <h3>{t('chat.renameChannel')}</h3>
+            <h3>{t('chat.rename')}</h3>
 
             <Formik
               initialValues={{ name: channelToRename.name }}
@@ -589,13 +589,16 @@ const HomePage = () => {
             >
               {({ isSubmitting }) => (
                 <Form>
+                  <label htmlFor="rename-channel-name">{t('chat.addChannelPlaceholder')}</label>
+
                   <div style={{ marginBottom: '10px' }}>
                     <Field name="name">
                       {({ field }) => (
                         <input
                           {...field}
+                          id="rename-channel-name"
                           ref={renameChannelInputRef}
-                          aria-label={t('chat.addChannelPlaceholder')}
+                          placeholder={t('chat.addChannelPlaceholder')}
                           disabled={isSubmitting}
                           style={{ width: '100%' }}
                         />
@@ -618,7 +621,7 @@ const HomePage = () => {
                       {t('chat.cancel')}
                     </button>
                     <button type="submit" disabled={isSubmitting}>
-                      {t('chat.save')}
+                      OK
                     </button>
                   </div>
                 </Form>
