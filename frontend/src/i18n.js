@@ -44,6 +44,7 @@ chat: {
   channels: 'Каналы',
   addChannel: '+',
   addChannelPlaceholder: 'Имя канала',
+  channelName: 'Имя канала',
   newChannel: 'Новый канал',
   renameChannel: 'Переименовать канал',
   deleteChannel: 'Удалить канал',

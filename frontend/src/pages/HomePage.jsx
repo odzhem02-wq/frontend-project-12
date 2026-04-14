@@ -523,59 +523,62 @@ const HomePage = () => {
       )}
 
       {channelToRename && (
-        <div style={modalOverlayStyle}>
-          <div style={modalContentStyle}>
-            <h3>{t('chat.renameChannel')}</h3>
+  <div style={modalOverlayStyle}>
+    <div style={modalContentStyle}>
+      <h3>{t('chat.renameChannel')}</h3>
 
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault()
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault()
 
-                const name = sanitizeText(renameValue.trim())
+          const name = sanitizeText(renameValue.trim())
 
-                try {
-                  await axios.patch(
-                    `/api/v1/channels/${channelToRename.id}`,
-                    { name },
-                    {
-                      headers: {
-                        Authorization: `Bearer ${token}`,
-                      },
-                    },
-                  )
+          try {
+            await axios.patch(
+              `/api/v1/channels/${channelToRename.id}`,
+              { name },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              },
+            )
 
-                  dispatch(renameChannel({ id: channelToRename.id, name }))
-                  toast.success(t('toasts.channelRenamed'))
-                  setChannelToRename(null)
-                } catch (error) {
-                  toast.error(t('toasts.networkError'))
-                }
-              }}
-            >
-              <input
-                name="name"
-                value={renameValue}
-                onChange={(e) => setRenameValue(e.target.value)}
-                aria-label={t('chat.renameChannel')}
-                autoFocus
-              />
+            dispatch(renameChannel({ id: channelToRename.id, name }))
+            toast.success(t('toasts.channelRenamed'))
+            setChannelToRename(null)
+          } catch (error) {
+            console.error(error)
+            toast.error(t('toasts.networkError'))
+          }
+        }}
+      >
+        <label htmlFor="rename-channel-name">{t('chat.channelName')}</label>
+        <input
+          id="rename-channel-name"
+          name="name"
+          value={renameValue}
+          onChange={(e) => setRenameValue(e.target.value)}
+          aria-label={t('chat.channelName')}
+          autoFocus
+        />
 
-              <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
-                <button type="submit">
-                  {t('chat.save')}
-                </button>
+        <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+          <button type="submit">
+            {t('chat.save')}
+          </button>
 
-                <button
-                  type="button"
-                  onClick={() => setChannelToRename(null)}
-                >
-                  {t('chat.cancel')}
-                </button>
-              </div>
-            </form>
-          </div>
+          <button
+            type="button"
+            onClick={() => setChannelToRename(null)}
+          >
+            {t('chat.cancel')}
+          </button>
         </div>
-      )}
+      </form>
+    </div>
+  </div>
+)}
     </>
   )
 }
