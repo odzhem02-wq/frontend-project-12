@@ -29,21 +29,22 @@ const chatSlice = createSlice({
     },
 
     removeChannel: (state, action) => {
-      const channelId = action.payload
+      const removedChannelId = action.payload
 
-      state.channels = state.channels.filter((c) => c.id !== channelId)
+      state.channels = state.channels.filter((channel) => channel.id !== removedChannelId)
+      state.messages = state.messages.filter((message) => message.channelId !== removedChannelId)
 
-      state.messages = state.messages.filter((m) => m.channelId !== channelId)
-
-      if (state.currentChannelId === channelId) {
-        state.currentChannelId = 1
+      if (state.currentChannelId === removedChannelId) {
+        const generalChannel = state.channels.find((channel) => channel.name === 'general')
+        state.currentChannelId = generalChannel?.id ?? state.channels[0]?.id ?? null
       }
     },
 
     renameChannel: (state, action) => {
       const { id, name } = action.payload
 
-      const channel = state.channels.find((c) => c.id === id)
+      const channel = state.channels.find((channelItem) => channelItem.id === id)
+
       if (channel) {
         channel.name = name
       }
