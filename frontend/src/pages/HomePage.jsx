@@ -414,17 +414,19 @@ const HomePage = () => {
                             </button>
 
                             <button
-                              type="button"
-                              onClick={() => {
-                                setChannelToDelete(channel)
-                                setOpenMenuId(null)
-                              }}
-                              style={{
-                                display: 'block',
-                                width: '100%',
-                                textAlign: 'left',
-                                cursor: 'pointer',
-                              }}
+  type="button"
+  onClick={() => {
+    setChannelToDelete(channel)
+  }}
+  style={{
+    display: 'block',
+    width: '100%',
+    textAlign: 'left',
+    cursor: 'pointer',
+  }}
+>
+  {t('chat.delete')}
+</button>
                             >
                               {t('chat.delete')}
                             </button>
