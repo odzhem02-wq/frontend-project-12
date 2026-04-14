@@ -227,31 +227,31 @@ const HomePage = () => {
     }
   }
 
-const handleDeleteChannel = async () => {
-  if (!channelToDelete) {
-    return
+  const handleDeleteChannel = async () => {
+    if (!channelToDelete) {
+      return
+    }
+
+    setDeletingChannel(true)
+
+    try {
+      await axios.delete(`/api/v1/channels/${channelToDelete.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      dispatch(removeChannel(channelToDelete.id))
+      toast.success(t('toasts.channelRemoved'))
+      setChannelToDelete(null)
+      setOpenMenuId(null)
+    } catch (error) {
+      console.error(error)
+      toast.error(t('toasts.networkError'))
+    } finally {
+      setDeletingChannel(false)
+    }
   }
-
-  setDeletingChannel(true)
-
-  try {
-    await axios.delete(`/api/v1/channels/${channelToDelete.id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-
-    dispatch(removeChannel(channelToDelete.id))
-    toast.success(t('toasts.channelRemoved'))
-    setChannelToDelete(null)
-    setOpenMenuId(null)
-  } catch (error) {
-    console.error(error)
-    toast.error(t('toasts.networkError'))
-  } finally {
-    setDeletingChannel(false)
-  }
-}
 
   return (
     <>
@@ -380,10 +380,7 @@ const handleDeleteChannel = async () => {
                         <button
                           type="button"
                           onClick={() => setOpenMenuId(isMenuOpen ? null : channel.id)}
-                          style={{
-                            marginTop: '6px',
-                            cursor: 'pointer',
-                          }}
+                          style={{ marginTop: '6px', cursor: 'pointer' }}
                         >
                           {t('chat.channelManagement')}
                         </button>
@@ -516,6 +513,7 @@ const handleDeleteChannel = async () => {
               >
                 {t('chat.cancel')}
               </button>
+
               <button
                 type="button"
                 onClick={handleDeleteChannel}
