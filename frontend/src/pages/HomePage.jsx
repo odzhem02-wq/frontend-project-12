@@ -368,16 +368,15 @@ const HomePage = () => {
                         style={{ position: 'relative' }}
                         ref={openMenuId === channel.id ? menuRef : null}
                       >
-                        <button
-                          type="button"
-                          aria-label={t('chat.channelManagement')}
-                          onClick={() =>
-                            setOpenMenuId(openMenuId === channel.id ? null : channel.id)
-                          }
-                          style={{ cursor: 'pointer' }}
-                        >
-                          ⋮
-                        </button>
+                       <button
+  type="button"
+  onClick={() =>
+    setOpenMenuId(openMenuId === channel.id ? null : channel.id)
+  }
+  style={{ cursor: 'pointer' }}
+>
+  {t('chat.channelManagement')}
+</button>
 
                         {openMenuId === channel.id && (
                           <div
