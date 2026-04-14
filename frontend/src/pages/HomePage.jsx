@@ -227,30 +227,31 @@ const HomePage = () => {
     }
   }
 
-  const handleDeleteChannel = async () => {
-    if (!channelToDelete) {
-      return
-    }
-
-    setDeletingChannel(true)
-
-    try {
-      await axios.delete(`/api/v1/channels/${channelToDelete.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      toast.success(t('toasts.channelRemoved'))
-      setChannelToDelete(null)
-      setOpenMenuId(null)
-    } catch (error) {
-      console.error(error)
-      toast.error(t('toasts.networkError'))
-    } finally {
-      setDeletingChannel(false)
-    }
+const handleDeleteChannel = async () => {
+  if (!channelToDelete) {
+    return
   }
+
+  setDeletingChannel(true)
+
+  try {
+    await axios.delete(`/api/v1/channels/${channelToDelete.id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    dispatch(removeChannel(channelToDelete.id))
+    toast.success(t('toasts.channelRemoved'))
+    setChannelToDelete(null)
+    setOpenMenuId(null)
+  } catch (error) {
+    console.error(error)
+    toast.error(t('toasts.networkError'))
+  } finally {
+    setDeletingChannel(false)
+  }
+}
 
   return (
     <>
