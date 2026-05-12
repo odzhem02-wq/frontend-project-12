@@ -125,9 +125,13 @@ const HomePage = () => {
     name: yup
       .string()
       .trim()
-      .min(3)
-      .max(20)
-      .required(),
+      .min(3, t('chat.channelNameLength'))
+      .max(20, t('chat.channelNameLength'))
+      .notOneOf(
+        channels.map((channel) => channel.name),
+        t('chat.channelExists'),
+      )
+      .required(t('chat.required')),
   })
 
   const handleSubmit = async (e) => {
@@ -170,6 +174,7 @@ const HomePage = () => {
       })
 
       setChannelToDelete(null)
+
       toast.success(t('toasts.channelRemoved'))
     }
     catch (error) {
@@ -227,10 +232,18 @@ const HomePage = () => {
                 }}
               >
                 <Form>
+                  <label
+                    htmlFor="new-channel-name"
+                    className="form-label"
+                  >
+                    {t('chat.channelName')}
+                  </label>
+
                   <Field
+                    id="new-channel-name"
                     name="name"
                     className="form-control mb-2"
-                    placeholder={t('chat.addChannel')}
+                    placeholder={t('chat.channelName')}
                   />
 
                   <ErrorMessage
@@ -239,7 +252,10 @@ const HomePage = () => {
                     className="text-danger small mb-2"
                   />
 
-                  <button type="submit" className="btn btn-primary btn-sm">
+                  <button
+                    type="submit"
+                    className="btn btn-primary btn-sm"
+                  >
                     {t('chat.send')}
                   </button>
                 </Form>
@@ -249,7 +265,10 @@ const HomePage = () => {
 
           <ul className="nav flex-column nav-pills nav-fill px-2">
             {channels.map((channel) => (
-              <li key={channel.id} className="nav-item w-100 mb-1">
+              <li
+                key={channel.id}
+                className="nav-item w-100 mb-1"
+              >
                 <div className="d-flex">
                   <button
                     type="button"
@@ -310,7 +329,10 @@ const HomePage = () => {
         <div className="col p-0 h-100">
           <div className="bg-light mb-4 p-3 shadow-sm small">
             <p className="m-0">
-              <b>#{currentChannel?.name}</b>
+              <b>
+                #
+                {currentChannel?.name}
+              </b>
             </p>
 
             <span className="text-muted">
@@ -322,7 +344,10 @@ const HomePage = () => {
 
           <div className="chat-messages overflow-auto px-5">
             {currentMessages.map((message) => (
-              <div key={message.id} className="text-break mb-2">
+              <div
+                key={message.id}
+                className="text-break mb-2"
+              >
                 <b>{message.username}</b>
                 {': '}
                 {message.body}
@@ -365,7 +390,10 @@ const HomePage = () => {
           tabIndex="-1"
           role="dialog"
         >
-          <div className="modal-dialog" role="document">
+          <div
+            className="modal-dialog"
+            role="document"
+          >
             <div className="modal-content">
               <div className="modal-header">
                 <div className="modal-title h4">
