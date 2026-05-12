@@ -8,6 +8,7 @@ import Rollbar from 'rollbar'
 import App from './App'
 import store from './store'
 import './i18n'
+import 'bootstrap/dist/css/bootstrap.min.css'
 import './index.css'
 
 const rollbarConfig = {

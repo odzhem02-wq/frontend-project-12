@@ -21,21 +21,41 @@ const chatSlice = createSlice({
     },
 
     addMessage: (state, action) => {
-      state.messages.push(action.payload)
+      const messageExists = state.messages.some(
+        (message) => message.id === action.payload.id,
+      )
+
+      if (!messageExists) {
+        state.messages.push(action.payload)
+      }
     },
 
     addChannel: (state, action) => {
-      state.channels.push(action.payload)
+      const channelExists = state.channels.some(
+        (channel) => channel.id === action.payload.id,
+      )
+
+      if (!channelExists) {
+        state.channels.push(action.payload)
+      }
     },
 
     removeChannel: (state, action) => {
       const removedChannelId = action.payload
 
-      state.channels = state.channels.filter((channel) => channel.id !== removedChannelId)
-      state.messages = state.messages.filter((message) => message.channelId !== removedChannelId)
+      state.channels = state.channels.filter(
+        (channel) => channel.id !== removedChannelId,
+      )
+
+      state.messages = state.messages.filter(
+        (message) => message.channelId !== removedChannelId,
+      )
 
       if (state.currentChannelId === removedChannelId) {
-        const generalChannel = state.channels.find((channel) => channel.name === 'general')
+        const generalChannel = state.channels.find(
+          (channel) => channel.name === 'general',
+        )
+
         state.currentChannelId = generalChannel?.id ?? state.channels[0]?.id ?? null
       }
     },
@@ -43,7 +63,9 @@ const chatSlice = createSlice({
     renameChannel: (state, action) => {
       const { id, name } = action.payload
 
-      const channel = state.channels.find((channelItem) => channelItem.id === id)
+      const channel = state.channels.find(
+        (channelItem) => channelItem.id === id,
+      )
 
       if (channel) {
         channel.name = name
