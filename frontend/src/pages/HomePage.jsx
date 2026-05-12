@@ -22,24 +22,6 @@ filter.loadDictionary('en')
 
 const sanitizeText = (text) => filter.clean(text)
 
-const modalOverlayStyle = {
-  position: 'fixed',
-  inset: 0,
-  backgroundColor: 'rgba(0, 0, 0, 0.3)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  zIndex: 1000,
-}
-
-const modalContentStyle = {
-  backgroundColor: 'white',
-  padding: '20px',
-  borderRadius: '8px',
-  minWidth: '320px',
-  maxWidth: '90%',
-}
-
 const HomePage = () => {
   const token = localStorage.getItem('token')
   const username = localStorage.getItem('username')
@@ -53,27 +35,18 @@ const HomePage = () => {
 
   const [loading, setLoading] = useState(true)
   const [body, setBody] = useState('')
-  const [sending, setSending] = useState(false)
   const [showAddForm, setShowAddForm] = useState(false)
-  const [openMenuId, setOpenMenuId] = useState(null)
   const [channelToDelete, setChannelToDelete] = useState(null)
-  const [channelToRename, setChannelToRename] = useState(null)
-  const [deletingChannel, setDeletingChannel] = useState(false)
-  const [renameValue, setRenameValue] = useState('')
 
-  const addChannelInputRef = useRef(null)
-  const messageInputRef = useRef(null)
-  const messagesEndRef = useRef(null)
-  const menuRef = useRef(null)
+  const inputRef = useRef(null)
 
-  const currentChannel = channels.find((channel) => channel.id === currentChannelId)
+  const currentChannel = channels.find(
+    (channel) => channel.id === currentChannelId,
+  )
 
   const currentMessages = messages.filter(
     (message) => message.channelId === currentChannelId,
   )
-
-  const currentMessagesLength = currentMessages.length
-  const channelNames = channels.map((channel) => channel.name)
 
   useEffect(() => {
     if (!token) {
@@ -92,21 +65,21 @@ const HomePage = () => {
           axios.get('/api/v1/messages', { headers }),
         ])
 
-        const loadedChannels = channelsResponse.data ?? []
-        const loadedMessages = messagesResponse.data ?? []
-        const generalChannel = loadedChannels.find((channel) => channel.name === 'general')
+        const loadedChannels = channelsResponse.data
+        const loadedMessages = messagesResponse.data
 
         dispatch(
           setChatData({
             channels: loadedChannels,
             messages: loadedMessages,
-            currentChannelId: generalChannel?.id ?? loadedChannels[0]?.id ?? null,
+            currentChannelId: loadedChannels[0]?.id ?? null,
           }),
         )
-      } catch (error) {
+      }
+      catch (error) {
         console.error(error)
-        toast.error(t('toasts.networkError'))
-      } finally {
+      }
+      finally {
         setLoading(false)
       }
     }
@@ -134,45 +107,11 @@ const HomePage = () => {
     return () => {
       socket.disconnect()
     }
-  }, [token, dispatch, t])
+  }, [token, dispatch])
 
   useEffect(() => {
-    if (showAddForm && addChannelInputRef.current) {
-      addChannelInputRef.current.focus()
-    }
-  }, [showAddForm])
-
-  useEffect(() => {
-    if (!loading && messageInputRef.current) {
-      messageInputRef.current.focus()
-    }
-  }, [loading, currentChannelId])
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [currentMessagesLength, currentChannelId])
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setOpenMenuId(null)
-      }
-    }
-
-    if (openMenuId !== null) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [openMenuId])
-
-  useEffect(() => {
-    if (channelToRename) {
-      setRenameValue(channelToRename.name)
-    }
-  }, [channelToRename])
+    inputRef.current?.focus()
+  }, [currentChannelId])
 
   if (!token) {
     return <Navigate to="/login" />
@@ -182,30 +121,27 @@ const HomePage = () => {
     return <div>{t('chat.loading')}</div>
   }
 
-  const addChannelSchema = yup.object({
+  const validationSchema = yup.object({
     name: yup
       .string()
       .trim()
-      .min(3, t('chat.channelNameLength'))
-      .max(20, t('chat.channelNameLength'))
-      .notOneOf(channelNames, t('chat.channelExists'))
-      .required(t('chat.required')),
+      .min(3)
+      .max(20)
+      .required(),
   })
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!body.trim() || !currentChannelId) {
+    if (!body.trim()) {
       return
     }
-
-    setSending(true)
 
     try {
       await axios.post(
         '/api/v1/messages',
         {
-          body: sanitizeText(body.trim()),
+          body: sanitizeText(body),
           channelId: currentChannelId,
           username,
         },
@@ -217,22 +153,15 @@ const HomePage = () => {
       )
 
       setBody('')
-      messageInputRef.current?.focus()
-    } catch (error) {
+      inputRef.current?.focus()
+    }
+    catch (error) {
       console.error(error)
-      toast.error(t('chat.sendError'))
-    } finally {
-      setSending(false)
+      toast.error(t('toasts.networkError'))
     }
   }
 
   const handleDeleteChannel = async () => {
-    if (!channelToDelete) {
-      return
-    }
-
-    setDeletingChannel(true)
-
     try {
       await axios.delete(`/api/v1/channels/${channelToDelete.id}`, {
         headers: {
@@ -240,346 +169,245 @@ const HomePage = () => {
         },
       })
 
-      dispatch(removeChannel(channelToDelete.id))
-      toast.success(t('toasts.channelRemoved'))
       setChannelToDelete(null)
-      setOpenMenuId(null)
-    } catch (error) {
+      toast.success(t('toasts.channelRemoved'))
+    }
+    catch (error) {
       console.error(error)
       toast.error(t('toasts.networkError'))
-    } finally {
-      setDeletingChannel(false)
     }
   }
 
   return (
-    <>
-      <div style={{ display: 'flex', gap: '20px', padding: '20px', minHeight: '100vh' }}>
-        <div
-          style={{
-            width: '320px',
-            borderRight: '1px solid #ccc',
-            paddingRight: '20px',
-            overflowWrap: 'anywhere',
-          }}
-        >
-          <h2>{t('chat.channels')}</h2>
+    <div className="container-fluid h-100">
+      <div className="row h-100 bg-white flex-md-row">
+        <div className="col-4 col-md-2 border-end pt-5 px-0 bg-light">
+          <div className="d-flex justify-content-between align-items-center mb-2 ps-4 pe-2">
+            <b>{t('chat.channels')}</b>
 
-          <button
-            type="button"
-            onClick={() => setShowAddForm((prev) => !prev)}
-            style={{ marginBottom: '12px' }}
-          >
-            {t('chat.addChannel')}
-          </button>
+            <button
+              type="button"
+              className="p-0 text-primary btn btn-group-vertical"
+              onClick={() => setShowAddForm((prev) => !prev)}
+            >
+              +
+            </button>
+          </div>
 
           {showAddForm && (
-            <Formik
-              initialValues={{ name: '' }}
-              validationSchema={addChannelSchema}
-              onSubmit={async (values, { setSubmitting, resetForm }) => {
-                try {
-                  const response = await axios.post(
-                    '/api/v1/channels',
-                    { name: sanitizeText(values.name.trim()) },
-                    {
-                      headers: {
-                        Authorization: `Bearer ${token}`,
+            <div className="px-4 mb-3">
+              <Formik
+                initialValues={{ name: '' }}
+                validationSchema={validationSchema}
+                onSubmit={async (values, { resetForm }) => {
+                  try {
+                    const response = await axios.post(
+                      '/api/v1/channels',
+                      { name: sanitizeText(values.name) },
+                      {
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                        },
                       },
-                    },
-                  )
+                    )
 
-                  const newChannel = response.data
+                    const newChannel = response.data
 
-                  dispatch(addChannel(newChannel))
-                  dispatch(setCurrentChannelId(newChannel.id))
-                  toast.success(t('toasts.channelCreated'))
+                    dispatch(setCurrentChannelId(newChannel.id))
 
-                  resetForm()
-                  setShowAddForm(false)
-                } catch (error) {
-                  console.error(error)
-                  toast.error(t('toasts.networkError'))
-                } finally {
-                  setSubmitting(false)
-                }
-              }}
-            >
-              {({ isSubmitting }) => (
-                <Form style={{ marginBottom: '15px' }}>
-                  <label htmlFor="new-channel-name">{t('chat.addChannelPlaceholder')}</label>
+                    toast.success(t('toasts.channelCreated'))
 
-                  <div style={{ marginBottom: '6px', display: 'flex', gap: '6px' }}>
-                    <Field name="name">
-                      {({ field }) => (
-                        <input
-                          {...field}
-                          id="new-channel-name"
-                          ref={addChannelInputRef}
-                          placeholder={t('chat.addChannelPlaceholder')}
-                          disabled={isSubmitting}
-                          style={{ flexGrow: 1, minWidth: 0 }}
-                        />
-                      )}
-                    </Field>
-
-                    <button type="submit" disabled={isSubmitting}>
-                      {t('chat.send')}
-                    </button>
-                  </div>
+                    resetForm()
+                    setShowAddForm(false)
+                  }
+                  catch (error) {
+                    console.error(error)
+                    toast.error(t('toasts.networkError'))
+                  }
+                }}
+              >
+                <Form>
+                  <Field
+                    name="name"
+                    className="form-control mb-2"
+                    placeholder={t('chat.addChannel')}
+                  />
 
                   <ErrorMessage
                     name="name"
                     component="div"
-                    style={{ color: 'red', fontSize: '14px' }}
+                    className="text-danger small mb-2"
                   />
+
+                  <button type="submit" className="btn btn-primary btn-sm">
+                    {t('chat.send')}
+                  </button>
                 </Form>
-              )}
-            </Formik>
+              </Formik>
+            </div>
           )}
 
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {channels.map((channel) => {
-              const isActive = channel.id === currentChannelId
-              const isMenuOpen = openMenuId === channel.id
-
-              return (
-                <li key={channel.id} style={{ marginBottom: '8px' }}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      gap: '6px',
-                      alignItems: 'flex-start',
-                      flexWrap: 'wrap',
+          <ul className="nav flex-column nav-pills nav-fill px-2">
+            {channels.map((channel) => (
+              <li key={channel.id} className="nav-item w-100 mb-1">
+                <div className="d-flex">
+                  <button
+                    type="button"
+                    className={`btn w-100 rounded-0 text-start ${
+                      channel.id === currentChannelId
+                        ? 'btn-secondary'
+                        : ''
+                    }`}
+                    onClick={() => {
+                      dispatch(setCurrentChannelId(channel.id))
                     }}
                   >
-                    <button
-                      type="button"
-                      onClick={() => dispatch(setCurrentChannelId(channel.id))}
-                      style={{
-                        flexGrow: 1,
-                        minWidth: 0,
-                        textAlign: 'left',
-                        border: '1px solid #ccc',
-                        backgroundColor: isActive ? '#e9ecef' : 'white',
-                        padding: '8px 12px',
-                        cursor: 'pointer',
-                        wordBreak: 'break-word',
-                        overflowWrap: 'anywhere',
-                      }}
-                    >
-                      {`# ${channel.name}`}
-                    </button>
+                    <span className="me-1">#</span>
+                    {channel.name}
+                  </button>
 
-                    {channel.removable && (
-                      <div style={{ width: '100%' }} ref={isMenuOpen ? menuRef : null}>
-                        <button
-                          type="button"
-                          onClick={() => setOpenMenuId(isMenuOpen ? null : channel.id)}
-                          style={{ marginTop: '6px', cursor: 'pointer' }}
-                        >
+                  {channel.removable && (
+                    <div className="dropdown">
+                      <button
+                        className="btn btn-secondary dropdown-toggle rounded-0"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        <span className="visually-hidden">
                           {t('chat.channelManagement')}
-                        </button>
+                        </span>
+                      </button>
 
-                        {isMenuOpen && (
-                          <div
-                            style={{
-                              marginTop: '6px',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              gap: '6px',
-                              padding: '8px',
-                              border: '1px solid #ccc',
-                              backgroundColor: 'white',
-                            }}
+                      <ul className="dropdown-menu">
+                        <li>
+                          <button
+                            type="button"
+                            className="dropdown-item"
                           >
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setChannelToRename(channel)
-                                setOpenMenuId(null)
-                              }}
-                              style={{
-                                display: 'block',
-                                width: '100%',
-                                textAlign: 'left',
-                                cursor: 'pointer',
-                              }}
-                            >
-                              {t('chat.rename')}
-                            </button>
+                            {t('chat.rename')}
+                          </button>
+                        </li>
 
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setChannelToDelete(channel)
-                              }}
-                              style={{
-                                display: 'block',
-                                width: '100%',
-                                textAlign: 'left',
-                                cursor: 'pointer',
-                              }}
-                            >
-                              {t('chat.delete')}
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </li>
-              )
-            })}
+                        <li>
+                          <button
+                            type="button"
+                            className="dropdown-item"
+                            onClick={() => setChannelToDelete(channel)}
+                          >
+                            {t('chat.remove')}
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </li>
+            ))}
           </ul>
         </div>
 
-        <div style={{ flexGrow: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-          <h2
-            style={{
-              overflowWrap: 'anywhere',
-              wordBreak: 'break-word',
-            }}
-          >
-            {currentChannel ? currentChannel.name : t('chat.chatFallback')}
-          </h2>
+        <div className="col p-0 h-100">
+          <div className="bg-light mb-4 p-3 shadow-sm small">
+            <p className="m-0">
+              <b>#{currentChannel?.name}</b>
+            </p>
 
-          <div
-            style={{
-              marginBottom: '20px',
-              overflowY: 'auto',
-              maxHeight: '60vh',
-              overflowWrap: 'anywhere',
-              wordBreak: 'break-word',
-            }}
-          >
+            <span className="text-muted">
+              {currentMessages.length}
+              {' '}
+              {t('chat.messagesCount')}
+            </span>
+          </div>
+
+          <div className="chat-messages overflow-auto px-5">
             {currentMessages.map((message) => (
-              <div
-                key={message.id}
-                style={{
-                  marginBottom: '8px',
-                  wordBreak: 'break-word',
-                  overflowWrap: 'anywhere',
-                }}
-              >
-                <b>{message.username}:</b> {message.body}
+              <div key={message.id} className="text-break mb-2">
+                <b>{message.username}</b>
+                {': '}
+                {message.body}
               </div>
             ))}
-
-            <div ref={messagesEndRef} />
           </div>
 
-          <form onSubmit={handleSubmit}>
-            <input
-              ref={messageInputRef}
-              type="text"
-              aria-label={t('chat.newMessage')}
-              placeholder={t('chat.messagePlaceholder')}
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              disabled={sending}
-              style={{ marginRight: '8px' }}
-            />
-            <button type="submit" disabled={sending}>
-              {t('chat.send')}
-            </button>
-          </form>
-        </div>
-      </div>
-
-      {channelToDelete && (
-        <div
-          style={modalOverlayStyle}
-          onClick={() => {
-            if (!deletingChannel) {
-              setChannelToDelete(null)
-            }
-          }}
-        >
-          <div style={modalContentStyle} onClick={(e) => e.stopPropagation()}>
-            <h3>{t('chat.deleteChannel')}</h3>
-            <p>{t('chat.areYouSure')}</p>
-
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button
-                type="button"
-                onClick={() => {
-                  setChannelToDelete(null)
-                  setOpenMenuId(null)
-                }}
-                disabled={deletingChannel}
-              >
-                {t('chat.cancel')}
-              </button>
-
-              <button
-                type="button"
-                onClick={handleDeleteChannel}
-                disabled={deletingChannel}
-              >
-                {t('chat.remove')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {channelToRename && (
-        <div style={modalOverlayStyle}>
-          <div style={modalContentStyle}>
-            <h3>{t('chat.renameChannel')}</h3>
-
+          <div className="mt-auto px-5 py-3">
             <form
-              onSubmit={async (e) => {
-                e.preventDefault()
-
-                const name = sanitizeText(renameValue.trim())
-
-                try {
-                  await axios.patch(
-                    `/api/v1/channels/${channelToRename.id}`,
-                    { name },
-                    {
-                      headers: {
-                        Authorization: `Bearer ${token}`,
-                      },
-                    },
-                  )
-
-                  dispatch(renameChannel({ id: channelToRename.id, name }))
-                  toast.success(t('toasts.channelRenamed'))
-                  setChannelToRename(null)
-                } catch (error) {
-                  console.error(error)
-                  toast.error(t('toasts.networkError'))
-                }
-              }}
+              noValidate=""
+              className="py-1 border rounded-2"
+              onSubmit={handleSubmit}
             >
-              <label htmlFor="rename-channel-name">{t('chat.channelName')}</label>
-              <input
-                id="rename-channel-name"
-                name="name"
-                value={renameValue}
-                onChange={(e) => setRenameValue(e.target.value)}
-                aria-label={t('chat.channelName')}
-                autoFocus
-              />
-
-              <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
-                <button type="submit">{t('chat.save')}</button>
+              <div className="input-group has-validation">
+                <input
+                  ref={inputRef}
+                  name="body"
+                  aria-label={t('chat.newMessage')}
+                  placeholder={t('chat.messagePlaceholder')}
+                  className="border-0 p-0 ps-2 form-control"
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                />
 
                 <button
-                  type="button"
-                  onClick={() => setChannelToRename(null)}
+                  type="submit"
+                  className="btn btn-group-vertical"
                 >
-                  {t('chat.cancel')}
+                  {t('chat.send')}
                 </button>
               </div>
             </form>
           </div>
         </div>
+      </div>
+
+      {channelToDelete && (
+        <div
+          className="modal modal-show fade d-block"
+          tabIndex="-1"
+          role="dialog"
+        >
+          <div className="modal-dialog" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <div className="modal-title h4">
+                  {t('chat.remove')}
+                </div>
+
+                <button
+                  type="button"
+                  className="btn-close"
+                  aria-label="Close"
+                  onClick={() => setChannelToDelete(null)}
+                />
+              </div>
+
+              <div className="modal-body">
+                <p className="lead">
+                  {t('chat.areYouSure')}
+                </p>
+
+                <div className="d-flex justify-content-end">
+                  <button
+                    type="button"
+                    className="me-2 btn btn-secondary"
+                    onClick={() => setChannelToDelete(null)}
+                  >
+                    {t('chat.cancel')}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={handleDeleteChannel}
+                  >
+                    {t('chat.remove')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
-    </>
+    </div>
   )
 }
 
