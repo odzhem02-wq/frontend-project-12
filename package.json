@@ -22,5 +22,9 @@
   "dependencies": {
     "@hexlet/chat-server": "^2.0.4",
     "yup": "^1.7.1"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0"
   }
 }
