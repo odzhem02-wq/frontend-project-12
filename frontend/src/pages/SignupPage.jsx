@@ -47,7 +47,7 @@ const SignupPage = () => {
 
       navigate('/')
     }
-catch (error) {
+    catch (error) {
       if (error.response?.status === 409) {
         setSignupFailed(true)
       }
@@ -55,7 +55,7 @@ else {
         console.error(error)
       }
     }
-finally {
+    finally {
       setSubmitting(false)
     }
   }

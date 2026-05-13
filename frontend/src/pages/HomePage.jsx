@@ -91,11 +91,11 @@ const HomePage = () => {
           }),
         )
       }
-catch (error) {
+    catch (error) {
         console.error(error)
         toast.error(t('toasts.networkError'))
       }
-finally {
+    finally {
         setLoading(false)
       }
     }
@@ -104,11 +104,11 @@ finally {
 
     const socket = io()
 
-    socket.on('newMessage', payload => {
+    socket.on('newMessage', (payload) => {
       dispatch(addMessage(payload))
     })
 
-    socket.on('newChannel', payload => {
+    socket.on('newChannel', (payload) => {
       dispatch(addChannel(payload))
     })
 
@@ -116,7 +116,7 @@ finally {
       dispatch(removeChannel(id))
     })
 
-    socket.on('renameChannel', payload => {
+    socket.on('renameChannel', (payload) => {
       dispatch(renameChannel(payload))
     })
 
@@ -195,11 +195,11 @@ finally {
       setBody('')
       messageInputRef.current?.focus()
     }
-catch (error) {
+    catch (error) {
       console.error(error)
       toast.error(t('toasts.networkError'))
     }
-finally {
+    finally {
       setSending(false)
     }
   }
@@ -220,7 +220,7 @@ finally {
       setChannelToDelete(null)
       setOpenMenuId(null)
     }
-catch (error) {
+    catch (error) {
       console.error(error)
       toast.error(t('toasts.networkError'))
     }
@@ -268,11 +268,11 @@ catch (error) {
                     resetForm()
                     setShowAddForm(false)
                   }
-catch (error) {
+    catch (error) {
                     console.error(error)
                     toast.error(t('toasts.networkError'))
                   }
-finally {
+    finally {
                     setSubmitting(false)
                   }
                 }}
@@ -316,7 +316,7 @@ finally {
           )}
 
           <ul className="nav flex-column nav-pills nav-fill px-2">
-            {channels.map(channel => {
+            {channels.map((channel) => {
               const isActive = channel.id === currentChannelId
               const isMenuOpen = openMenuId === channel.id
 
@@ -481,11 +481,11 @@ finally {
                       toast.success(t('toasts.channelRenamed'))
                       setChannelToRename(null)
                     }
-catch (error) {
+    catch (error) {
                       console.error(error)
                       toast.error(t('toasts.networkError'))
                     }
-finally {
+    finally {
                       setSubmitting(false)
                     }
                   }}
