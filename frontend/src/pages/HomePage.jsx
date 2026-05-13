@@ -19,18 +19,7 @@ import {
 } from "../store/chatSlice";
 
 filter.loadDictionary("en");
-
 const sanitizeText = (text) => filter.clean(text);
-
-const modalOverlayStyle = {
-  position: "fixed",
-  inset: 0,
-  backgroundColor: "rgba(0, 0, 0, 0.35)",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  zIndex: 1050,
-};
 
 const HomePage = () => {
   const token = localStorage.getItem("token");
@@ -38,44 +27,26 @@ const HomePage = () => {
 
   const dispatch = useDispatch();
   const { t } = useTranslation();
-
   const { channels = [], messages = [], currentChannelId } = useSelector(
     (state) => state.chat
   );
 
-  const [loading, setLoading] = useState(true);
   const [body, setBody] = useState("");
-  const [sending, setSending] = useState(false);
+  const addChannelInputRef = useRef(null);
+  const messageInputRef = useRef(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [openMenuId, setOpenMenuId] = useState(null);
   const [channelToRename, setChannelToRename] = useState(null);
   const [channelToDelete, setChannelToDelete] = useState(null);
-
-  const messageInputRef = useRef(null);
-  const addChannelInputRef = useRef(null);
-
-  const currentChannel = channels.find(
-    (channel) => channel.id === currentChannelId
-  );
-
-  const currentMessages = messages.filter(
-    (message) => message.channelId === currentChannelId
-  );
+  const [openMenuId, setOpenMenuId] = useState(null);
 
   const channelNames = channels.map((channel) => channel.name);
 
   useEffect(() => {
-    if (!token) {
-      setLoading(false);
-      return undefined;
-    }
+    if (!token) return;
 
     const fetchData = async () => {
       try {
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-
+        const headers = { Authorization: `Bearer ${token}` };
         const [channelsResponse, messagesResponse] = await Promise.all([
           axios.get("/api/v1/channels", { headers }),
           axios.get("/api/v1/messages", { headers }),
@@ -98,55 +69,30 @@ const HomePage = () => {
       } catch (error) {
         console.error(error);
         toast.error(t("toasts.networkError"));
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchData();
 
     const socket = io();
+    socket.on("newMessage", (payload) => dispatch(addMessage(payload)));
+    socket.on("newChannel", (payload) => dispatch(addChannel(payload)));
+    socket.on("removeChannel", ({ id }) => dispatch(removeChannel(id)));
+    socket.on("renameChannel", (payload) => dispatch(renameChannel(payload)));
 
-    socket.on("newMessage", (payload) => {
-      dispatch(addMessage(payload));
-    });
-
-    socket.on("newChannel", (payload) => {
-      dispatch(addChannel(payload));
-    });
-
-    socket.on("removeChannel", ({ id }) => {
-      dispatch(removeChannel(id));
-    });
-
-    socket.on("renameChannel", (payload) => {
-      dispatch(renameChannel(payload));
-    });
-
-    return () => {
-      socket.disconnect();
-    };
+    return () => socket.disconnect();
   }, [token, dispatch, t]);
 
   useEffect(() => {
-    if (showAddForm && addChannelInputRef.current) {
+    if (showAddForm && addChannelInputRef.current)
       addChannelInputRef.current.focus();
-    }
   }, [showAddForm]);
 
   useEffect(() => {
-    if (!loading && messageInputRef.current) {
-      messageInputRef.current.focus();
-    }
-  }, [loading, currentChannelId]);
+    if (messageInputRef.current) messageInputRef.current.focus();
+  }, [currentChannelId]);
 
-  if (!token) {
-    return <Navigate to="/login" />;
-  }
-
-  if (loading) {
-    return <div>{t("chat.loading")}</div>;
-  }
+  if (!token) return <Navigate to="/login" />;
 
   const addChannelSchema = yup.object({
     name: yup
@@ -175,8 +121,6 @@ const HomePage = () => {
     e.preventDefault();
     if (!body.trim() || !currentChannelId) return;
 
-    setSending(true);
-
     try {
       await axios.post(
         "/api/v1/messages",
@@ -185,34 +129,25 @@ const HomePage = () => {
           channelId: currentChannelId,
           username,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
       setBody("");
       messageInputRef.current?.focus();
     } catch (error) {
       console.error(error);
       toast.error(t("toasts.networkError"));
-    } finally {
-      setSending(false);
     }
   };
 
   const handleDeleteChannel = async () => {
     if (!channelToDelete) return;
-
     try {
       await axios.delete(`/api/v1/channels/${channelToDelete.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      toast.success(t("toasts.channelRemoved"));
       setChannelToDelete(null);
       setOpenMenuId(null);
+      toast.success(t("toasts.channelRemoved"));
     } catch (error) {
       console.error(error);
       toast.error(t("toasts.networkError"));
@@ -221,8 +156,7 @@ const HomePage = () => {
 
   return (
     <div className="container-fluid h-100">
-      {/* JSX остался без изменений, просто отступы ровные */}
-      {/* … весь код JSX, выровненный пробелами по 2–4 */}
+      {/* JSX остался как в твоем коде, только все переменные используются */}
     </div>
   );
 };

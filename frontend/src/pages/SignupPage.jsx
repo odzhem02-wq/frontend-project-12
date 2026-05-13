@@ -11,9 +11,7 @@ const SignupPage = () => {
   const [signupFailed, setSignupFailed] = useState(false);
   const { t } = useTranslation();
 
-  if (token) {
-    return <Navigate to="/" />;
-  }
+  if (token) return <Navigate to="/" />;
 
   const validationSchema = yup.object({
     username: yup
@@ -62,11 +60,7 @@ const SignupPage = () => {
       <h1>{t("signup.title")}</h1>
 
       <Formik
-        initialValues={{
-          username: "",
-          password: "",
-          confirmPassword: "",
-        }}
+        initialValues={{ username: "", password: "", confirmPassword: "" }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
@@ -74,9 +68,7 @@ const SignupPage = () => {
           <Form>
             <div style={{ marginBottom: "10px" }}>
               <label htmlFor="username">{t("signup.username")}</label>
-              <div>
-                <Field id="username" name="username" type="text" />
-              </div>
+              <Field id="username" name="username" type="text" />
               <ErrorMessage
                 name="username"
                 component="div"
@@ -86,9 +78,7 @@ const SignupPage = () => {
 
             <div style={{ marginBottom: "10px" }}>
               <label htmlFor="password">{t("signup.password")}</label>
-              <div>
-                <Field id="password" name="password" type="password" />
-              </div>
+              <Field id="password" name="password" type="password" />
               <ErrorMessage
                 name="password"
                 component="div"
@@ -97,16 +87,8 @@ const SignupPage = () => {
             </div>
 
             <div style={{ marginBottom: "10px" }}>
-              <label htmlFor="confirmPassword">
-                {t("signup.confirmPassword")}
-              </label>
-              <div>
-                <Field
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                />
-              </div>
+              <label htmlFor="confirmPassword">{t("signup.confirmPassword")}</label>
+              <Field id="confirmPassword" name="confirmPassword" type="password" />
               <ErrorMessage
                 name="confirmPassword"
                 component="div"
