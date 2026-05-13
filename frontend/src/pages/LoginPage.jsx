@@ -20,9 +20,11 @@ const LoginPage = () => {
       localStorage.setItem('username', username)
 
       navigate('/')
-    } catch (error) {
+    }
+    catch {
       setAuthFailed(true)
-    } finally {
+    }
+    finally {
       setSubmitting(false)
     }
   }
@@ -38,7 +40,10 @@ const LoginPage = () => {
         {({ isSubmitting }) => (
           <Form>
             <div style={{ marginBottom: '10px' }}>
-              <label htmlFor="username">{t('login.username')}</label>
+              <label htmlFor="username">
+                {t('login.username')}
+              </label>
+
               <div>
                 <Field
                   id="username"
@@ -50,7 +55,10 @@ const LoginPage = () => {
             </div>
 
             <div style={{ marginBottom: '10px' }}>
-              <label htmlFor="password">{t('login.password')}</label>
+              <label htmlFor="password">
+                {t('login.password')}
+              </label>
+
               <div>
                 <Field
                   id="password"
@@ -75,7 +83,13 @@ const LoginPage = () => {
       </Formik>
 
       <div style={{ marginTop: '12px' }}>
-        {t('login.noAccount')} <Link to="/signup">{t('login.signup')}</Link>
+        {t('login.noAccount')}
+
+        {' '}
+
+        <Link to="/signup">
+          {t('login.signup')}
+        </Link>
       </div>
     </div>
   )
