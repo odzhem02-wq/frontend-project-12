@@ -22,7 +22,7 @@ const chatSlice = createSlice({
 
     addMessage: (state, action) => {
       const messageExists = state.messages.some(
-        (message) => message.id === action.payload.id,
+        message => message.id === action.payload.id,
       )
 
       if (!messageExists) {
@@ -32,7 +32,7 @@ const chatSlice = createSlice({
 
     addChannel: (state, action) => {
       const channelExists = state.channels.some(
-        (channel) => channel.id === action.payload.id,
+        channel => channel.id === action.payload.id,
       )
 
       if (!channelExists) {
@@ -44,16 +44,16 @@ const chatSlice = createSlice({
       const removedChannelId = action.payload
 
       state.channels = state.channels.filter(
-        (channel) => channel.id !== removedChannelId,
+        channel => channel.id !== removedChannelId,
       )
 
       state.messages = state.messages.filter(
-        (message) => message.channelId !== removedChannelId,
+        message => message.channelId !== removedChannelId,
       )
 
       if (state.currentChannelId === removedChannelId) {
         const generalChannel = state.channels.find(
-          (channel) => channel.name === 'general',
+          channel => channel.name === 'general',
         )
 
         state.currentChannelId = generalChannel?.id ?? state.channels[0]?.id ?? null
@@ -64,7 +64,7 @@ const chatSlice = createSlice({
       const { id, name } = action.payload
 
       const channel = state.channels.find(
-        (channelItem) => channelItem.id === id,
+        channelItem => channelItem.id === id,
       )
 
       if (channel) {

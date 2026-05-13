@@ -46,13 +46,16 @@ const SignupPage = () => {
       localStorage.setItem('username', username)
 
       navigate('/')
-    } catch (error) {
+    }
+catch (error) {
       if (error.response?.status === 409) {
         setSignupFailed(true)
-      } else {
+      }
+else {
         console.error(error)
       }
-    } finally {
+    }
+finally {
       setSubmitting(false)
     }
   }
@@ -126,7 +129,11 @@ const SignupPage = () => {
       </Formik>
 
       <div style={{ marginTop: '12px' }}>
-        {t('signup.hasAccount')} <Link to="/login">{t('signup.login')}</Link>
+        {t('signup.hasAccount')}
+        {' '}
+        <Link to="/login">
+          {t('signup.login')}
+        </Link>
       </div>
     </div>
   )

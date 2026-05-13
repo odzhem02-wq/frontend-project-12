@@ -20,7 +20,7 @@ import {
 
 filter.loadDictionary('en')
 
-const sanitizeText = (text) => filter.clean(text)
+const sanitizeText = text => filter.clean(text)
 
 const modalOverlayStyle = {
   position: 'fixed',
@@ -40,7 +40,7 @@ const HomePage = () => {
   const { t } = useTranslation()
 
   const { channels = [], messages = [], currentChannelId } = useSelector(
-    (state) => state.chat,
+    state => state.chat,
   )
 
   const [loading, setLoading] = useState(true)
@@ -54,13 +54,13 @@ const HomePage = () => {
   const messageInputRef = useRef(null)
   const addChannelInputRef = useRef(null)
 
-  const currentChannel = channels.find((channel) => channel.id === currentChannelId)
+  const currentChannel = channels.find(channel => channel.id === currentChannelId)
 
   const currentMessages = messages.filter(
-    (message) => message.channelId === currentChannelId,
+    message => message.channelId === currentChannelId,
   )
 
-  const channelNames = channels.map((channel) => channel.name)
+  const channelNames = channels.map(channel => channel.name)
 
   useEffect(() => {
     if (!token) {
@@ -81,7 +81,7 @@ const HomePage = () => {
 
         const loadedChannels = channelsResponse.data ?? []
         const loadedMessages = messagesResponse.data ?? []
-        const generalChannel = loadedChannels.find((channel) => channel.name === 'general')
+        const generalChannel = loadedChannels.find(channel => channel.name === 'general')
 
         dispatch(
           setChatData({
@@ -90,10 +90,12 @@ const HomePage = () => {
             currentChannelId: generalChannel?.id ?? loadedChannels[0]?.id ?? null,
           }),
         )
-      } catch (error) {
+      }
+catch (error) {
         console.error(error)
         toast.error(t('toasts.networkError'))
-      } finally {
+      }
+finally {
         setLoading(false)
       }
     }
@@ -102,11 +104,11 @@ const HomePage = () => {
 
     const socket = io()
 
-    socket.on('newMessage', (payload) => {
+    socket.on('newMessage', payload => {
       dispatch(addMessage(payload))
     })
 
-    socket.on('newChannel', (payload) => {
+    socket.on('newChannel', payload => {
       dispatch(addChannel(payload))
     })
 
@@ -114,7 +116,7 @@ const HomePage = () => {
       dispatch(removeChannel(id))
     })
 
-    socket.on('renameChannel', (payload) => {
+    socket.on('renameChannel', payload => {
       dispatch(renameChannel(payload))
     })
 
@@ -160,13 +162,13 @@ const HomePage = () => {
       .min(3, t('chat.channelNameLength'))
       .max(20, t('chat.channelNameLength'))
       .notOneOf(
-        channelNames.filter((name) => name !== channelToRename?.name),
+        channelNames.filter(name => name !== channelToRename?.name),
         t('chat.channelExists'),
       )
       .required(t('chat.required')),
   })
 
-  const handleSendMessage = async (e) => {
+  const handleSendMessage = async e => {
     e.preventDefault()
 
     if (!body.trim() || !currentChannelId) {
@@ -192,10 +194,12 @@ const HomePage = () => {
 
       setBody('')
       messageInputRef.current?.focus()
-    } catch (error) {
+    }
+catch (error) {
       console.error(error)
       toast.error(t('toasts.networkError'))
-    } finally {
+    }
+finally {
       setSending(false)
     }
   }
@@ -215,7 +219,8 @@ const HomePage = () => {
       toast.success(t('toasts.channelRemoved'))
       setChannelToDelete(null)
       setOpenMenuId(null)
-    } catch (error) {
+    }
+catch (error) {
       console.error(error)
       toast.error(t('toasts.networkError'))
     }
@@ -231,7 +236,7 @@ const HomePage = () => {
             <button
               type="button"
               className="p-0 text-primary btn btn-group-vertical"
-              onClick={() => setShowAddForm((prev) => !prev)}
+              onClick={() => setShowAddForm(prev => !prev)}
             >
               {t('chat.addChannel')}
             </button>
@@ -262,10 +267,12 @@ const HomePage = () => {
                     toast.success(t('toasts.channelCreated'))
                     resetForm()
                     setShowAddForm(false)
-                  } catch (error) {
+                  }
+catch (error) {
                     console.error(error)
                     toast.error(t('toasts.networkError'))
-                  } finally {
+                  }
+finally {
                     setSubmitting(false)
                   }
                 }}
@@ -309,7 +316,7 @@ const HomePage = () => {
           )}
 
           <ul className="nav flex-column nav-pills nav-fill px-2">
-            {channels.map((channel) => {
+            {channels.map(channel => {
               const isActive = channel.id === currentChannelId
               const isMenuOpen = openMenuId === channel.id
 
@@ -395,7 +402,7 @@ const HomePage = () => {
           </div>
 
           <div className="chat-messages overflow-auto px-5 flex-grow-1">
-            {currentMessages.map((message) => (
+            {currentMessages.map(message => (
               <div key={message.id} className="text-break mb-2">
                 <b>{message.username}</b>
                 {': '}
@@ -418,7 +425,7 @@ const HomePage = () => {
                   placeholder={t('chat.messagePlaceholder')}
                   className="border-0 p-0 ps-2 form-control"
                   value={body}
-                  onChange={(e) => setBody(e.target.value)}
+                  onChange={e => setBody(e.target.value)}
                   disabled={sending}
                 />
 
@@ -473,10 +480,12 @@ const HomePage = () => {
 
                       toast.success(t('toasts.channelRenamed'))
                       setChannelToRename(null)
-                    } catch (error) {
+                    }
+catch (error) {
                       console.error(error)
                       toast.error(t('toasts.networkError'))
-                    } finally {
+                    }
+finally {
                       setSubmitting(false)
                     }
                   }}
