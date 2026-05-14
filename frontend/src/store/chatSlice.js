@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice } from "@reduxjs/toolkit"
 
 const initialState = {
   channels: [],
@@ -7,7 +7,7 @@ const initialState = {
 }
 
 const chatSlice = createSlice({
-  name: 'chat',
+  name: "chat",
   initialState,
   reducers: {
     setChatData: (state, action) => {
@@ -53,7 +53,7 @@ const chatSlice = createSlice({
 
       if (state.currentChannelId === removedChannelId) {
         const generalChannel = state.channels.find(
-          channel => channel.name === 'general',
+          channel => channel.name === "general",
         )
 
         state.currentChannelId = generalChannel?.id ?? state.channels[0]?.id ?? null
