@@ -234,14 +234,13 @@ const HomePage = () => {
 
               {channel.removable && (
                 <div style={{ position: "relative" }}>
-                  <button
-                    type="button"
-                    onClick={() => setOpenMenuId(openMenuId === channel.id ? null : channel.id)}
-                    style={{ background: "none", border: "none", padding: "10px 8px", cursor: "pointer" }}
-                    aria-label={t("chat.channelManagement")}
-                  >
-                    ▾
-                  </button>
+                <button
+  type="button"
+  onClick={() => setOpenMenuId(openMenuId === channel.id ? null : channel.id)}
+  style={{ background: "none", border: "none", padding: "10px 8px", cursor: "pointer" }}
+>
+  {t("chat.channelManagement")}
+</button>
                   {openMenuId === channel.id && (
                     <div style={{ position: "absolute", right: 0, top: "100%", background: "white", border: "1px solid #ccc", borderRadius: "4px", zIndex: 10, minWidth: "130px" }}>
                       <button
