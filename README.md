@@ -4,7 +4,7 @@
 
 ## Ссылка на проект
 
-[Открыть на Render](https://frontend-project-12-9iam.onrender.com)
+(https://frontend-project-12-9iam.onrender.com)
 
 ## Локальная установка и запуск
 
@@ -13,18 +13,18 @@
 
 ### Установка
 
-```bash
+\`\`\`bash
 make install
-```
+\`\`\`
 
 ### Сборка
 
-```bash
+\`\`\`bash
 make build
-```
+\`\`\`
 
 ### Запуск
 
-```bash
+\`\`\`bash
 make start
-```
+\`\`\`
