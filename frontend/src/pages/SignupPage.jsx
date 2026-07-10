@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as yup from "yup";
+import signupSchema from '../validation/signupSchema';
 import { useTranslation } from "react-i18next";
 
 const SignupPage = () => {
@@ -13,21 +13,7 @@ const SignupPage = () => {
 
   if (token) return <Navigate to="/" />;
 
-  const validationSchema = yup.object({
-    username: yup
-      .string()
-      .min(3, t("signup.usernameLength"))
-      .max(20, t("signup.usernameLength"))
-      .required(t("signup.required")),
-    password: yup
-      .string()
-      .min(6, t("signup.passwordLength"))
-      .required(t("signup.required")),
-    confirmPassword: yup
-      .string()
-      .oneOf([yup.ref("password")], t("signup.passwordsMustMatch"))
-      .required(t("signup.required")),
-  });
+
 
   const handleSubmit = async (values, { setSubmitting }) => {
     setSignupFailed(false);
@@ -61,7 +47,7 @@ const SignupPage = () => {
 
       <Formik
         initialValues={{ username: "", password: "", confirmPassword: "" }}
-        validationSchema={validationSchema}
+validationSchema={signupSchema(t)}
         onSubmit={handleSubmit}
       >
         {({ isSubmitting }) => (

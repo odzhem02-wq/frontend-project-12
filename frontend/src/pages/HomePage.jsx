@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
 import { io } from "socket.io-client";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as yup from "yup";
+import { addChannelSchema, renameChannelSchema } from '../validation/chatSchemas';
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import filter from "leo-profanity";
+import api from '../api/axiosInstance';
 
 import {
   setChatData,
@@ -18,11 +17,15 @@ import {
   renameChannel,
 } from "../store/chatSlice";
 
+import MessageInput from '../components/MessageInput';
+import MessageList from '../components/MessageList';
+import RenameChannelModal from '../components/modals/RenameChannelModal';
+import DeleteChannelModal from '../components/modals/DeleteChannelModal';
+
 filter.loadDictionary("en");
 const sanitizeText = (text) => filter.clean(text);
 
 const HomePage = () => {
-  const token = localStorage.getItem("token");
   const username = localStorage.getItem("username");
 
   const dispatch = useDispatch();
@@ -42,14 +45,11 @@ const HomePage = () => {
   const channelNames = channels.map((channel) => channel.name);
 
   useEffect(() => {
-    if (!token) return;
-
     const fetchData = async () => {
       try {
-        const headers = { Authorization: `Bearer ${token}` };
         const [channelsResponse, messagesResponse] = await Promise.all([
-          axios.get("/api/v1/channels", { headers }),
-          axios.get("/api/v1/messages", { headers }),
+          api.get("/api/v1/channels"),
+          api.get("/api/v1/messages"),
         ]);
 
         const loadedChannels = channelsResponse.data ?? [];
@@ -81,7 +81,7 @@ const HomePage = () => {
     socket.on("renameChannel", (payload) => dispatch(renameChannel(payload)));
 
     return () => socket.disconnect();
-  }, [token, dispatch, t]);
+  }, [dispatch, t]);
 
   useEffect(() => {
     if (showAddForm && addChannelInputRef.current)
@@ -92,45 +92,16 @@ const HomePage = () => {
     if (messageInputRef.current) messageInputRef.current.focus();
   }, [currentChannelId]);
 
-  if (!token) return <Navigate to="/login" />;
-
-  const addChannelSchema = yup.object({
-    name: yup
-      .string()
-      .trim()
-      .min(3, t("chat.channelNameLength"))
-      .max(20, t("chat.channelNameLength"))
-      .notOneOf(channelNames, t("chat.channelExists"))
-      .required(t("chat.required")),
-  });
-
-  const renameChannelSchema = yup.object({
-    name: yup
-      .string()
-      .trim()
-      .min(3, t("chat.channelNameLength"))
-      .max(20, t("chat.channelNameLength"))
-      .notOneOf(
-        channelNames.filter((name) => name !== channelToRename?.name),
-        t("chat.channelExists")
-      )
-      .required(t("chat.required")),
-  });
-
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!body.trim() || !currentChannelId) return;
 
     try {
-      await axios.post(
-        "/api/v1/messages",
-        {
-          body: sanitizeText(body.trim()),
-          channelId: currentChannelId,
-          username,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.post("/api/v1/messages", {
+        body: sanitizeText(body.trim()),
+        channelId: currentChannelId,
+        username,
+      });
       setBody("");
       messageInputRef.current?.focus();
     } catch (error) {
@@ -142,15 +113,45 @@ const HomePage = () => {
   const handleDeleteChannel = async () => {
     if (!channelToDelete) return;
     try {
-      await axios.delete(`/api/v1/channels/${channelToDelete.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/api/v1/channels/${channelToDelete.id}`);
       setChannelToDelete(null);
       setOpenMenuId(null);
       toast.success(t("toasts.channelRemoved"));
     } catch (error) {
       console.error(error);
       toast.error(t("toasts.networkError"));
+    }
+  };
+
+  const handleAddChannel = async (values, { setSubmitting, resetForm }) => {
+    try {
+      const response = await api.post("/api/v1/channels", {
+        name: sanitizeText(values.name.trim()),
+      });
+      dispatch(setCurrentChannelId(response.data.id));
+      toast.success(t("toasts.channelCreated"));
+      setShowAddForm(false);
+      resetForm();
+    } catch (error) {
+      console.error(error);
+      toast.error(t("toasts.networkError"));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleRenameChannel = async (values, { setSubmitting }) => {
+    try {
+      await api.patch(`/api/v1/channels/${channelToRename.id}`, {
+        name: sanitizeText(values.name.trim()),
+      });
+      toast.success(t("toasts.channelRenamed"));
+      setChannelToRename(null);
+    } catch (error) {
+      console.error(error);
+      toast.error(t("toasts.networkError"));
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -180,25 +181,8 @@ const HomePage = () => {
           <div style={{ padding: "8px" }}>
             <Formik
               initialValues={{ name: "" }}
-              validationSchema={addChannelSchema}
-              onSubmit={async (values, { setSubmitting, resetForm }) => {
-                try {
-                  const response = await axios.post(
-                    "/api/v1/channels",
-                    { name: sanitizeText(values.name.trim()) },
-                    { headers: { Authorization: `Bearer ${token}` } }
-                  );
-                  dispatch(setCurrentChannelId(response.data.id));
-                  toast.success(t("toasts.channelCreated"));
-                  setShowAddForm(false);
-                  resetForm();
-                } catch (error) {
-                  console.error(error);
-                  toast.error(t("toasts.networkError"));
-                } finally {
-                  setSubmitting(false);
-                }
-              }}
+              validationSchema={addChannelSchema(t, channelNames)}
+              onSubmit={handleAddChannel}
             >
               {({ isSubmitting }) => (
                 <Form>
@@ -234,13 +218,13 @@ const HomePage = () => {
 
               {channel.removable && (
                 <div style={{ position: "relative" }}>
-                <button
-  type="button"
-  onClick={() => setOpenMenuId(openMenuId === channel.id ? null : channel.id)}
-  style={{ background: "none", border: "none", padding: "10px 8px", cursor: "pointer" }}
->
-  {t("chat.channelManagement")}
-</button>
+                  <button
+                    type="button"
+                    onClick={() => setOpenMenuId(openMenuId === channel.id ? null : channel.id)}
+                    style={{ background: "none", border: "none", padding: "10px 8px", cursor: "pointer" }}
+                  >
+                    {t("chat.channelManagement")}
+                  </button>
                   {openMenuId === channel.id && (
                     <div style={{ position: "absolute", right: 0, top: "100%", background: "white", border: "1px solid #ccc", borderRadius: "4px", zIndex: 10, minWidth: "130px" }}>
                       <button
@@ -273,97 +257,30 @@ const HomePage = () => {
           <div style={{ fontSize: "12px", color: "#666" }}>{currentMessages.length} сообщений</div>
         </div>
 
-        <div style={{ flex: 1, overflowY: "auto", padding: "16px" }}>
-          {currentMessages.map((msg) => (
-            <div key={msg.id} style={{ marginBottom: "8px" }}>
-              <b>{msg.username}</b>: {msg.body}
-            </div>
-          ))}
-        </div>
+        <MessageList messages={currentMessages} />
 
-        <form onSubmit={handleSendMessage} style={{ display: "flex", padding: "12px", borderTop: "1px solid #ccc", gap: "8px" }}>
-          <label htmlFor="message-input" style={{ display: "none" }}>{t("chat.newMessage")}</label>
-        <input
-  id="message-input"
-  ref={messageInputRef}
-  type="text"
-  name="body"
-  value={body}
-  onChange={(e) => setBody(e.target.value)}
-  placeholder={t("chat.messagePlaceholder")}
-  aria-label={t("chat.newMessage")}
-  style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-/>
-          <button type="submit" disabled={!body.trim()}>
-            {t("chat.send")}
-          </button>
-        </form>
+        <MessageInput
+          body={body}
+          setBody={setBody}
+          onSubmit={handleSendMessage}
+          inputRef={messageInputRef}
+        />
       </div>
 
-      {/* Модалка — переименование */}
       {channelToRename && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
-          <div style={{ background: "white", borderRadius: "8px", padding: "24px", minWidth: "320px" }}>
-            <h5>{t("chat.renameChannel")}</h5>
-            <Formik
-              initialValues={{ name: channelToRename.name }}
-              validationSchema={renameChannelSchema}
-              onSubmit={async (values, { setSubmitting }) => {
-                try {
-                  await axios.patch(
-                    `/api/v1/channels/${channelToRename.id}`,
-                    { name: sanitizeText(values.name.trim()) },
-                    { headers: { Authorization: `Bearer ${token}` } }
-                  );
-                  toast.success(t("toasts.channelRenamed"));
-                  setChannelToRename(null);
-                } catch (error) {
-                  console.error(error);
-                  toast.error(t("toasts.networkError"));
-                } finally {
-                  setSubmitting(false);
-                }
-              }}
-            >
-              {({ isSubmitting }) => (
-                <Form>
-                  <label htmlFor="rename-channel-name">{t("chat.channelName")}</label>
-                  <Field
-                    id="rename-channel-name"
-                    name="name"
-                    style={{ width: "100%", padding: "6px", marginTop: "4px", marginBottom: "4px", boxSizing: "border-box" }}
-                    autoFocus
-                  />
-                  <ErrorMessage name="name" component="div" style={{ color: "red", fontSize: "12px" }} />
-                  <div style={{ display: "flex", gap: "8px", marginTop: "12px", justifyContent: "flex-end" }}>
-                    <button type="button" onClick={() => setChannelToRename(null)}>{t("chat.cancel")}</button>
-                    <button type="submit" disabled={isSubmitting}>{t("chat.rename")}</button>
-                  </div>
-                </Form>
-              )}
-            </Formik>
-          </div>
-        </div>
+        <RenameChannelModal
+          channel={channelToRename}
+          onSubmit={handleRenameChannel}
+          onClose={() => setChannelToRename(null)}
+          validationSchema={renameChannelSchema(t, channelNames, channelToRename?.name)}
+        />
       )}
 
-      {/* Модалка — удаление */}
       {channelToDelete && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
-          <div style={{ background: "white", borderRadius: "8px", padding: "24px", minWidth: "320px" }}>
-            <h5>{t("chat.deleteChannel")}</h5>
-            <p>{t("chat.areYouSure")}</p>
-            <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
-              <button type="button" onClick={() => setChannelToDelete(null)}>{t("chat.cancel")}</button>
-              <button
-                type="button"
-                onClick={handleDeleteChannel}
-                style={{ background: "red", color: "white", border: "none", padding: "6px 12px", borderRadius: "4px", cursor: "pointer" }}
-              >
-                {t("chat.remove")}
-              </button>
-            </div>
-          </div>
-        </div>
+        <DeleteChannelModal
+          onConfirm={handleDeleteChannel}
+          onClose={() => setChannelToDelete(null)}
+        />
       )}
 
     </div>

@@ -7,37 +7,30 @@ import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import NotFoundPage from './pages/NotFoundPage'
 import Header from './components/Header'
+import PrivateRoute from './components/PrivateRoute'
 
-const App = () => {
-  const token = localStorage.getItem('token')
+const App = () => (
+  <>
+    <Header />
 
-  return (
-    <>
-      <Header />
-
-      <main style={{ padding: '0 20px 20px' }}>
-        <Routes>
+    <main style={{ padding: '0 20px 20px' }}>
+      <Routes>
+        <Route element={<PrivateRoute />}>
           <Route path="/" element={<HomePage />} />
-          <Route
-            path="/login"
-            element={token ? <Navigate to="/" /> : <LoginPage />}
-          />
-          <Route
-            path="/signup"
-            element={token ? <Navigate to="/" /> : <SignupPage />}
-          />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </main>
+        </Route>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </main>
 
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        closeOnClick
-        pauseOnHover
-      />
-    </>
-  )
-}
+    <ToastContainer
+      position="top-right"
+      autoClose={3000}
+      closeOnClick
+      pauseOnHover
+    />
+  </>
+)
 
 export default App
