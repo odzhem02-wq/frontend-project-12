@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "prepare": "husky install"
+"prepare": "node -e \"if (process.env.NODE_ENV !== 'production') { require('child_process').execSync('husky install') }\""
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
