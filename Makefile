@@ -6,6 +6,6 @@ build:
 	cd frontend && npm run build
 
 start:
-	npx start-server -s ./frontend/dist
+	npx start-server -s ./frontend/dist -p 3000
 
 setup: install build
