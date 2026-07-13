@@ -7,5 +7,3 @@ build:
 
 start:
 	npx start-server -s ./frontend/dist
-
-setup: install build
