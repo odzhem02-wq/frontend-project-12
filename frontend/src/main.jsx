@@ -13,10 +13,8 @@ import './index.css'
 
 const rollbarConfig = {
   accessToken: import.meta.env.VITE_ROLLBAR_TOKEN,
-  environment: import.meta.env.VITE_ENV || 'development',
-  captureUncaught: true,
-  captureUnhandledRejections: true,
-}
+  environment: "production",
+};
 
 const rollbar = new Rollbar(rollbarConfig)
 
