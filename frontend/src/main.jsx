@@ -12,7 +12,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import './index.css'
 
 const rollbarConfig = {
-  accessToken: import.meta.env.VITE_ROLLBAR_TOKEN,
+  accessToken: '519ef61d787b247cb9a378510f553d23',
   environment: "production",
 };
 
